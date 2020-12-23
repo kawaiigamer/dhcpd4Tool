@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using System;
 
 
-namespace dhcpd4Client
+namespace dhcpd4Tool
 {
     public static class DhcpClient
     {

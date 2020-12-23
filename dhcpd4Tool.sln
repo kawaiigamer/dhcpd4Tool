@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dhcpd4Client", "dhcp4test\dhcpd4Client.csproj", "{7FC7C028-A0BC-4AE9-A805-9713584E0478}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dhcpd4Tool", "dhcpd4Tool\dhcpd4Tool.csproj", "{7FC7C028-A0BC-4AE9-A805-9713584E0478}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dhcpd4Tests", "dhcpd_arch_test\dhcpd4Tests.csproj", "{1F093292-6F95-413B-8D63-6D23C28B9CC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dhcpd4ToolTests", "dhcpd4ToolTests\dhcpd4ToolTests.csproj", "{1F093292-6F95-413B-8D63-6D23C28B9CC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

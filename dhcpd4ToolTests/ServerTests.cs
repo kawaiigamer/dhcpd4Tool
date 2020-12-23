@@ -1,11 +1,9 @@
 using NUnit.Framework;
 using System.Net;
-using System.Linq;
-using dhcp4test;
-using System.Text;
-using System;
+using dhcpd4Tool;
 
-namespace dhcpd4Tests
+
+namespace dhcpd4ToolTests
 {
     public class ServerTests
     {

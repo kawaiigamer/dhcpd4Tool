@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 
-namespace dhcpd4Client
+namespace dhcpd4Tool
 {
     public enum DHCPMessageType: byte
     {
