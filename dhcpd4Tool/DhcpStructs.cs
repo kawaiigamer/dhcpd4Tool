@@ -125,7 +125,6 @@ namespace dhcpd4Tool
             return sb.ToString();
         }
 
-
         public static DHCPPacket FromArray(byte[] data)
         {
             const int HEADER_LENGTH = 236 + 4; // Header + option cookie
@@ -199,7 +198,6 @@ namespace dhcpd4Tool
             writer.Write(AgentRemoteID);
             Options[82] = new DhcpOptionData(stream.ToArray());
         }
-
 
     }
 }

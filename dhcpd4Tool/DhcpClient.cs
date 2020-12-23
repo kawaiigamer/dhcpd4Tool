@@ -7,7 +7,6 @@ namespace dhcpd4Tool
 {
     public static class DhcpClient
     {
-
         public static DHCPPacket SendDhcpRequest(IPEndPoint endPoint, DHCPPacket packet)
         {
             Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);

@@ -9,7 +9,6 @@ namespace dhcpd4ToolTests
 {
     public class InternalTests 
     {
-
         [Test]
         /// <summary> Проверяет DHCPPacket == DHCPPacket.FromArray(DHCPPacket.ToArray())  </summary>
         public void ReverseTest()
@@ -20,10 +19,5 @@ namespace dhcpd4ToolTests
             pack.SetOption82("test", "test2");
             Assert.AreEqual(pack.ToString(), DHCPPacket.FromArray(pack.ToArray()).ToString());
         }
-
-
-
-
-
     }
 }
