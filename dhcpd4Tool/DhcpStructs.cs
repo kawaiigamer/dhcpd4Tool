@@ -16,7 +16,17 @@ namespace dhcpd4Tool
         DHCPACK,
         DHCPNAK,
         DHCPRELEASE,
-        DHCPINFORM
+        DHCPINFORM,
+        DHCPFORCERENEW,
+        DHCPLEASEQUERY,
+        DHCPLEASEUNASSIGNED,
+        DHCPLEASEUNKNOWN,
+        DHCPLEASEACTIVE,
+        DHCPBULKLEASEQUERY,
+        DHCPLEASEQUERYDONE,
+        DHCPACTIVELEASEQUERY,
+        DHCPLEASEQUERYSTATUS,
+        DHCPTLS
     }
     public enum DHCPMessageOP : byte
     {
@@ -25,7 +35,20 @@ namespace dhcpd4Tool
 
     public class DhcpOptionData
     {
+        private byte[] _data;
+        public byte[] Data
+        {
+            get { return _data; }
+            set
+            {
+                if (value.Length > byte.MaxValue)
+                    throw new InvalidDataException($"Dhcp option length is too big {value.Length}");
+                _data = value;
+            }
+        }
+
         public DhcpOptionData(params byte[] val) => Data = val;
+        public DhcpOptionData(string ascii) => Data = DhcpConvertor.AsciiToBytes(ascii);
         public DhcpOptionData(params IPAddress[] addresses)
         {
             var stream = new MemoryStream();
@@ -35,9 +58,7 @@ namespace dhcpd4Tool
                 writer.Write(address.GetAddressBytes());
             }
             Data = stream.ToArray();
-        } 
-        public DhcpOptionData(string ascii) => Data = Encoding.ASCII.GetBytes(ascii);
-        public readonly byte[] Data;
+        }
     }
 
 
@@ -100,26 +121,27 @@ namespace dhcpd4Tool
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
+            sb.AppendLine("------------");
             sb.AppendLine("DHCPPacket");
             sb.AppendLine("------------");
-            sb.AppendLine("BOOTREQUEST - " + OP.ToString("X"));
-            sb.AppendLine("HTYPE - " + HTYPE.ToString("X"));
-            sb.AppendLine("HOPS - " + HOPS.ToString("X"));
-            sb.AppendLine("HLEN - " + HLEN.ToString("X"));
-            sb.AppendLine("XID - " + XID.ToString("X"));
-            sb.AppendLine("SECS - " + SECS.ToString("X"));
-            sb.AppendLine("FLAGS - " + FLAGS.ToString("X"));
-            sb.AppendLine("CIADDR - " + String.Join('.', CIADDR));
-            sb.AppendLine("YIADDR - " + String.Join('.', YIADDR));
-            sb.AppendLine("SIADDR - " + String.Join('.', SIADDR));
-            sb.AppendLine("GIADDR - " + String.Join('.', GIADDR));
-            sb.AppendLine("CHADDR - " + String.Concat(CHADDR));
-            sb.AppendLine("SNAME - " + String.Concat(SNAME));
-            sb.AppendLine("FILE - " + String.Concat(FILE));
+            sb.AppendLine($@"BOOTREQUEST - 0x{OP.ToString("X")}");
+            sb.AppendLine($@"HTYPE  - 0x{HTYPE.ToString("X")}");
+            sb.AppendLine($@"HOPS   - 0x{HOPS.ToString("X")}");
+            sb.AppendLine($@"HLEN   - 0x{HLEN.ToString("X")}");
+            sb.AppendLine($@"XID    - 0x{XID.ToString("X")}");
+            sb.AppendLine($@"SECS   - 0x{SECS.ToString("X")}");
+            sb.AppendLine($@"FLAGS  - 0x{FLAGS.ToString("X")}");
+            sb.AppendLine($"CIADDR - {String.Join('.', CIADDR)}");
+            sb.AppendLine($"YIADDR - {String.Join('.', YIADDR)}");
+            sb.AppendLine($"SIADDR - {String.Join('.', SIADDR)}");
+            sb.AppendLine($"GIADDR - {String.Join('.', GIADDR)}");
+            sb.AppendLine($"CHADDR - {String.Concat(CHADDR)}");
+            sb.AppendLine($"SNAME  - {String.Concat(SNAME)}");
+            sb.AppendLine($"FILE   - {String.Concat(FILE)}");
 
             foreach (KeyValuePair<byte, DhcpOptionData> option in Options)
             {
-               sb.AppendLine($"Option #{option.Key} len({option.Value.Data.Length}) - {String.Join(' ', option.Value.Data)} ({Encoding.Default.GetString(option.Value.Data)})");
+               sb.AppendLine($"Option #{option.Key} len({option.Value.Data.Length}) - {String.Join(' ', option.Value.Data)} ASCII({DhcpConvertor.BytesToAscii(option.Value.Data)})");
             }
 
             return sb.ToString();
@@ -156,37 +178,45 @@ namespace dhcpd4Tool
             return result;
         }
 
-        public void SetMessageType(DHCPMessageType T)
-        {
-            Options[53] =  new DhcpOptionData((byte)T);
-        }
+        public void SetMessageType(DHCPMessageType T) => Options[53] = new DhcpOptionData((byte)T);
+        
+        public DHCPMessageType GetMessageType() => (DHCPMessageType)Options[53].Data[0];
 
-        public DHCPMessageType GetMessageType()
-        {
-            return (DHCPMessageType)Options[53].Data[0];
-        }
+        public void SetOption61(params byte[] val) => Options[61] = new DhcpOptionData(val);
 
-        public void SetOption61(params byte[] val)
-        {
-            Options[61] = new DhcpOptionData(val);
-        }
+        public void SetCHADDR(string val) => SetCHADDR(DhcpConvertor.MacToBytes(val));
 
-        public void SetCHADDR(string val)
-        {
-            SetCHADDR(val.Split(':').Select(x => Convert.ToByte(x, 16)).ToArray());
-        }
+        public void SetSNAME(string val) => SetSNAME(DhcpConvertor.AsciiToBytes(val));
+
+        public void SetFILE(string val) => SetFILE(DhcpConvertor.AsciiToBytes(val));
 
         public void SetCHADDR(params byte[] val)
         {
+            if (val.Length > CHADDR.Length)
+                throw new InvalidDataException($"CHADDR({CHADDR.Length}) length is too big {val.Length}");
             val.CopyTo(CHADDR, 0);
         }
 
-        public void SetOption82(string CircuitID, string AgentRemoteID)
+        public void SetSNAME(params byte[] val)
         {
-            SetOption82(Encoding.ASCII.GetBytes(CircuitID), Encoding.ASCII.GetBytes(AgentRemoteID));
+            if (val.Length > SNAME.Length)
+                throw new InvalidDataException($"SNAME({SNAME.Length}) length is too big {val.Length}");
+            val.CopyTo(SNAME, 0);
         }
 
-        public void SetOption82(byte[] CircuitID, byte[] AgentRemoteID)
+        public void SetFILE(params byte[] val)
+        {
+            if (val.Length > FILE.Length)
+                throw new InvalidDataException($"FILE({FILE.Length}) length is too big {val.Length}");
+            val.CopyTo(FILE, 0);
+        }
+
+        public void SetOption82(string CircuitID, string RemoteID)
+        {
+            SetOption82(DhcpConvertor.AsciiToBytes(CircuitID), DhcpConvertor.AsciiToBytes(RemoteID));
+        }
+
+        public void SetOption82(byte[] CircuitID, byte[] RemoteID)
         {
             var stream = new MemoryStream();
             var writer = new BinaryWriter(stream);
@@ -194,8 +224,8 @@ namespace dhcpd4Tool
             writer.Write((byte)CircuitID.Length);
             writer.Write(CircuitID);
             writer.Write((byte)0x02);
-            writer.Write((byte)AgentRemoteID.Length);
-            writer.Write(AgentRemoteID);
+            writer.Write((byte)RemoteID.Length);
+            writer.Write(RemoteID);
             Options[82] = new DhcpOptionData(stream.ToArray());
         }
 
