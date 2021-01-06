@@ -80,22 +80,17 @@ namespace dhcpd4Tool.cli
         [Option('o', "options", HelpText = "List OF DHCP options", Separator = ' ')]
         public IEnumerable<string> OptionsList { get; set; }
 
-
         [Option("option-overload", HelpText = "Used in option 52 to indicate that the DHCP 'sname' or 'file' fields are being overloaded by using them to carry DHCP options")]
         public DHCPOptionOverload OptionOverload { get; set; }
 
         [Option("netbios-node-type", HelpText = "The NetBIOS node type (option 46)")]
         public DHCPNetBIOSNodeType NetBIOSNodeType { get; set; }
 
-
-
         [Option("сircuit-id", HelpText = "Agent Circuit ID Sub-option for DHCP option 82")]
         public string CircuitID { get; set; }
 
         [Option("remote-id", HelpText = "Agent Remote ID Sub-option for DHCP option 82")]
         public string RemoteID { get; set; }
-
-
 
     }
 }
