@@ -31,9 +31,26 @@ namespace dhcpd4Tool
     }
     public enum DHCPMessageOP : byte
     {
-        BOOTREQUEST = 1, BOOTREPLY
+        BOOTREQUEST = 1,
+        BOOTREPLY
     }
 
+    public enum DHCPOptionOverload : byte
+    {
+        FILE = 1, // Поле FILE используется для хранения опций
+        SNAME,    // Поле SNAME используется для хранения опций
+        BOTH      // Оба поля используются для хранения опций
+    }
+
+    public enum DHCPNetBIOSNodeType : byte
+    {
+        B_node = 0x1,
+        P_node = 0x2,
+        M_node = 0x4,
+        H_node = 0x8
+    }
+
+    
     public class DhcpOptionData
     {
         private byte[] _data;
@@ -79,7 +96,7 @@ namespace dhcpd4Tool
         public byte[] CHADDR = new byte[16];   // Аппаратный адрес (обычно MAC-адрес) клиента.
         public byte[] SNAME = new byte[64];    // Необязательное имя сервера в виде нуль-терминированной строки.
         public byte[] FILE = new byte[128];    // Необязательное имя файла на сервере, используемое бездисковыми рабочими станциями
-        public byte[] OPTION_COOKIE = new byte[] { 99, 130, 83, 99 };    // DHCP option magic cookie
+        public readonly byte[] OPTION_COOKIE = new byte[] { 99, 130, 83, 99 };    // DHCP option magic cookie
         public SortedDictionary<byte, DhcpOptionData> Options = new SortedDictionary<byte, DhcpOptionData>(); // Опции
 
         public DHCPPacket()
@@ -182,6 +199,10 @@ namespace dhcpd4Tool
         public void SetMessageType(DHCPMessageType T) => Options[53] = new DhcpOptionData((byte)T);
         
         public DHCPMessageType GetMessageType() => (DHCPMessageType)Options[53].Data[0];
+
+        public void SetOptionOverload(DHCPOptionOverload V) => Options[52] = new DhcpOptionData((byte)V);
+
+        public void SetNetBIOSNodeType(DHCPNetBIOSNodeType T) => Options[46] = new DhcpOptionData((byte)T);
 
         public string GetServerInformation() => DhcpConvertor.BytesToIP(Options[54].Data) ?? "unknown";
 

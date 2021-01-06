@@ -16,7 +16,7 @@ namespace dhcpd4ToolTests
         }
 
         [Test]
-        /// <summary> Проверяет жив ли сервер </summary>
+        /// <summary> РџСЂРѕРІРµСЂСЏРµС‚ Р¶РёРІ Р»Рё СЃРµСЂРІРµСЂ </summary>
         public void AliveTest() 
         {
             DHCPPacket pack = new DHCPPacket();
@@ -25,7 +25,7 @@ namespace dhcpd4ToolTests
         }
 
         [Test]
-        /// <summary> Проверяет вернет ли сервер DHCPOFFER в опции 53 </summary>
+        /// <summary> РџСЂРѕРІРµСЂСЏРµС‚ РІРµСЂРЅРµС‚ Р»Рё СЃРµСЂРІРµСЂ DHCPOFFER РІ РѕРїС†РёРё 53 </summary>
         public void OfferTest()
         {
             DHCPPacket pack = new DHCPPacket();
@@ -34,7 +34,7 @@ namespace dhcpd4ToolTests
         }
 
         [Test]
-        /// <summary> Проверяет предложит ли сервер адресс привязанный к маку </summary>
+        /// <summary> РџСЂРѕРІРµСЂСЏРµС‚ РїСЂРµРґР»РѕР¶РёС‚ Р»Рё СЃРµСЂРІРµСЂ Р°РґСЂРµСЃСЃ РїСЂРёРІСЏР·Р°РЅРЅС‹Р№ Рє РјР°РєСѓ </summary>
         public void MACBindingTest()
         {
             byte[] expectedAdress = { 192, 168, 1, 29 };
@@ -45,7 +45,7 @@ namespace dhcpd4ToolTests
         }
 
         [Test]
-        /// <summary> Проверяет предложит ли сервер адресс привязанный  к CircuitID и AgentRemoteID </summary>
+        /// <summary> РџСЂРѕРІРµСЂСЏРµС‚ РїСЂРµРґР»РѕР¶РёС‚ Р»Рё СЃРµСЂРІРµСЂ Р°РґСЂРµСЃСЃ РїСЂРёРІСЏР·Р°РЅРЅС‹Р№  Рє CircuitID Рё AgentRemoteID </summary>
         public void Option82BindingTest()
         {
             byte[] expectedAdress = { 192, 168, 1, 50 };
@@ -56,7 +56,7 @@ namespace dhcpd4ToolTests
         }
 
         [Test]
-        /// <summary> Отправляет сообщение бродкастом, отключает broadcast флаг у пакета, ждет данные отправленные на адресс в CIADDR</summary>
+        /// <summary> РћС‚РїСЂР°РІР»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ Р±СЂРѕРґРєР°СЃС‚РѕРј, РѕС‚РєР»СЋС‡Р°РµС‚ broadcast С„Р»Р°Рі Сѓ РїР°РєРµС‚Р°, Р¶РґРµС‚ РґР°РЅРЅС‹Рµ РѕС‚РїСЂР°РІР»РµРЅРЅС‹Рµ РЅР° Р°РґСЂРµСЃСЃ РІ CIADDR</summary>
         public void BroadcastTest()
         {
             DHCPPacket pack = new DHCPPacket();
@@ -67,7 +67,7 @@ namespace dhcpd4ToolTests
         }
 
         [Test]
-        /// <summary> Проверяет с того ли сервера пришел ответ</summary>
+        /// <summary> РџСЂРѕРІРµСЂСЏРµС‚ СЃ С‚РѕРіРѕ Р»Рё СЃРµСЂРІРµСЂР° РїСЂРёС€РµР» РѕС‚РІРµС‚</summary>
         public void TargetTest()
         {
             DHCPPacket pack = new DHCPPacket();

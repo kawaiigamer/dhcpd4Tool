@@ -25,19 +25,18 @@ namespace dhcpd4Tool.cli
             }
 
             long startTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            DhcpClient.DatagramRecivedEvent += (t, f, l) =>
+            DhcpClient.DatagramRecivedEvent += (t, l, p) =>
             {
-                Console.WriteLine($"Result from {f} length {l} via {t - startTime} ms");
+                Console.WriteLine($"Result from {p.GetServerInformation()} length {l} via {t - startTime} ms");
+                if (options.Value.Verbose)
+                {
+                    WriteColored(p.ToString(), ConsoleColor.DarkRed);
+                }
+
             };
             DHCPPacket[] results = DhcpClient.SendDhcpRequest(serverEndPoint, packet, options.Value.Timeout);
 
-            if (options.Value.Verbose)
-            {
-                foreach (DHCPPacket result in results)
-                {
-                    WriteColored(result.ToString(), ConsoleColor.DarkRed);
-                }                
-            }
+            Console.WriteLine($"{results.Length} packets recived");
         }
 
         static void WriteColored(string text, ConsoleColor color)
@@ -51,7 +50,7 @@ namespace dhcpd4Tool.cli
         {
             DHCPPacket packet = new DHCPPacket();
 
-            if (options.Value.RequestType)
+            if (options.Value.OPRequestType)
             {
                 packet.OP = DHCPMessageOP.BOOTREPLY;
             }
@@ -113,6 +112,10 @@ namespace dhcpd4Tool.cli
                 packet.SetOption82(options.Value.CircuitID == null ? String.Empty : options.Value.CircuitID,
                                    options.Value.RemoteID == null ? String.Empty : options.Value.RemoteID);
             }
+            if (options.Value.OptionOverload != 0)
+                packet.SetOptionOverload(options.Value.OptionOverload);
+            if (options.Value.NetBIOSNodeType != 0)
+                packet.SetNetBIOSNodeType(options.Value.NetBIOSNodeType);
             return packet;
         }
     }

@@ -5,65 +5,72 @@
 
 ```
 dhcpd4Tool 1.0.0
-Copyright (C) 2020 dhcpd4Tool
+Copyright (C) 2021 dhcpd4Tool
 
-  -v, --verbose         (Default: false) Prints all debug messages
+  -v, --verbose          (Default: true) Prints all datagrams data to stdout
 
-  -s, --server          (Default: 192.168.1.255) Server to send request
+  -s, --server           (Default: 192.168.1.255) Server to send request
 
-  -p, --port            (Default: 67) Server port
+  -p, --port             (Default: 67) Server port
 
-  -r, --reply-send      (Default: false) Send BOOTREPLY instead BOOTREQUEST
+  -t, --timeout          (Default: 10000) Recive timeout (ms)
 
-  -h, --htype           (Default: 1) Hardware address type, for Ethernet - 0x01
+  -h, --htype            (Default: 1) Hardware address type, for Ethernet - 0x01
 
-  -l, --hlen            (Default: 6) The length of the hardware address in bytes. For Ethernet MAC address - 0x06.
+  -l, --hlen             (Default: 6) The length of the hardware address in bytes. For Ethernet MAC address - 0x06.
+  
+  -x, --xid              (Default: 66) Transaction uid
+  
+  -f, --flags            (Default: 30962) DHCP flags
+  
+  -m, --mac              (Default: 00:00:00:00:00:00) Client hardware address usually a mac address (CHADDR)
+  
+  -y, --мessage-type     (Default: DHCPDISCOVER) DHCP Message type
+  
+  -o, --options          List OF DHCP options
+  
+  --send-reply           (Default: false) Send BOOTREPLY instead BOOTREQUEST
 
-  --hops                (Default: 0) The number of intermediate routers (called DHCP relay agents) through which the
-                        message passed
+  --hops                 (Default: 0) The number of intermediate routers (called DHCP relay agents) through which the
+                         message passed
 
-  -x, --xid             (Default: 66) Transaction uid
+  --secs                 (Default: 0) Time in seconds since the start of the address acquisition process. May not be
+                         used
 
-  --secs                (Default: 0) Time in seconds since the start of the address acquisition process. May not be used
+  --ciadr                (Default: 0.0.0.0) Client IP Address
 
-  -f, --flags           (Default: 30962) DHCP flags
+  --yiaddr               (Default: 0.0.0.0) Your IP Address
 
-  --ciadr               (Default: 0.0.0.0) Client IP Address
+  --siaddr               (Default: 0.0.0.0) Server IP Address
 
-  --yiaddr              (Default: 0.0.0.0) Your IP Address
+  --giaddr               (Default: 0.0.0.0) Gateway IP Address switched by relay 
 
-  --siaddr              (Default: 0.0.0.0) Server IP Address
+  --sname                An optional server name as null terminated string
 
-  --giaddr              (Default: 0.0.0.0) Gateway IP Address switched by relay
+  --file                 An optional file name on the server, used by diskless workstations for remote
+                         booting. Like sname, it is represented as a null-terminated string. 
 
-  -m, --mac             (Default: 00:00:00:00:00:00) Client hardware address usually a mac address (CHADDR)
+  --option-overload      Used in option 52 to indicate that the DHCP 'sname' or 'file' fields are being overloaded by using                              them to carry DHCP options.
 
-  --sname               An optional server name as null terminated string
+  --netbios-node-type    The NetBIOS node type (option 46)
 
-  --file                An optional file name on the server, used by diskless workstations for remote
-                        booting. Like sname, it is represented as a null-terminated string.
+  --сircuit-id           Agent Circuit ID Sub-option for DHCP option 82
 
-  -t, --мessage-type    (Default: DHCPDISCOVER) DHCP Message type
+  --remote-id            Agent Remote ID Sub-option for DHCP option 82
 
-  -o, --options         List OF DHCP options
+  --help                 Display this help screen.
 
-  --сircuit-id          Agent Circuit ID Sub-option for DHCP option 82
-
-  --remote-id           Agent Remote ID Sub-option for DHCP option 82
-
-  --help                Display this help screen.
-
-  --version             Display version information.
+  --version              Display version information.
 ```
 
 ## Usage
 
 ```bash
-dhcpd4Tool -s 192.168.1.100 -p 69 -f 0 -v -m 8A:F5:85:13:6A:DC \
+dhcpd4Tool -s 192.168.1.100 -p 69 -f 0 -m 8A:F5:85:13:6A:DC \
 -o "12=my-workstation 7=[ip]10.245.67.1,225.71.66.12 20=[byte]0x01 26=[byte]0x64,0xC" \
 --сircuit-id "245" --remote-id "relay#37"
 ```
 
 ## TODO
 
-In version `1.0.0` some special options eg. `63`, `120`, `151` and many of  options are not defined by **IETF** standards are not supported yet or not fully supported.
+In version `1.0.0` some special options are not supported yet or not fully supported.
