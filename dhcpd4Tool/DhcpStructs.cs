@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 
+
 namespace dhcpd4Tool
 {
     public enum DHCPMessageType: byte
@@ -120,21 +121,21 @@ namespace dhcpd4Tool
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder("\n");
             sb.AppendLine("------------");
             sb.AppendLine("DHCPPacket");
             sb.AppendLine("------------");
-            sb.AppendLine($@"BOOTREQUEST - 0x{OP.ToString("X")}");
+            sb.AppendLine($@"{OP} - 0x{OP.ToString("X")}");
             sb.AppendLine($@"HTYPE  - 0x{HTYPE.ToString("X")}");
             sb.AppendLine($@"HOPS   - 0x{HOPS.ToString("X")}");
             sb.AppendLine($@"HLEN   - 0x{HLEN.ToString("X")}");
             sb.AppendLine($@"XID    - 0x{XID.ToString("X")}");
             sb.AppendLine($@"SECS   - 0x{SECS.ToString("X")}");
             sb.AppendLine($@"FLAGS  - 0x{FLAGS.ToString("X")}");
-            sb.AppendLine($"CIADDR - {String.Join('.', CIADDR)}");
-            sb.AppendLine($"YIADDR - {String.Join('.', YIADDR)}");
-            sb.AppendLine($"SIADDR - {String.Join('.', SIADDR)}");
-            sb.AppendLine($"GIADDR - {String.Join('.', GIADDR)}");
+            sb.AppendLine($"CIADDR - {DhcpConvertor.BytesToIP(CIADDR)}");
+            sb.AppendLine($"YIADDR - {DhcpConvertor.BytesToIP(YIADDR)}");
+            sb.AppendLine($"SIADDR - {DhcpConvertor.BytesToIP(SIADDR)}");
+            sb.AppendLine($"GIADDR - {DhcpConvertor.BytesToIP(GIADDR)}");
             sb.AppendLine($"CHADDR - {String.Concat(CHADDR)}");
             sb.AppendLine($"SNAME  - {String.Concat(SNAME)}");
             sb.AppendLine($"FILE   - {String.Concat(FILE)}");
@@ -182,7 +183,7 @@ namespace dhcpd4Tool
         
         public DHCPMessageType GetMessageType() => (DHCPMessageType)Options[53].Data[0];
 
-        public void SetOption61(params byte[] val) => Options[61] = new DhcpOptionData(val);
+        public string GetServerInformation() => DhcpConvertor.BytesToIP(Options[54].Data) ?? "unknown";
 
         public void SetCHADDR(string val) => SetCHADDR(DhcpConvertor.MacToBytes(val));
 

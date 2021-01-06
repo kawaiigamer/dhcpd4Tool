@@ -1,6 +1,6 @@
 ## dhcpd4Tool
 
-**dhcpd4Tool** its a simple tool for testing `DHCP` servers.
+**dhcpd4Tool** its a simple tool for testing `DHCP` servers. 
 
 
 ```
@@ -64,3 +64,6 @@ dhcpd4Tool -s 192.168.1.100 -p 69 -f 0 -v -m 8A:F5:85:13:6A:DC \
 --сircuit-id "245" --remote-id "relay#37"
 ```
 
+## TODO
+
+In version `1.0.0` some special options eg. `63`, `120`, `151` and many of  options are not defined by **IETF** standards are not supported yet or not fully supported.

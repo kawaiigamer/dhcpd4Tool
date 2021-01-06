@@ -2,31 +2,49 @@
 using System;
 using System.Net;
 
+
 namespace dhcpd4Tool.cli
 {
     public static class DhcpTester
     {
-
         static void Main(string[] args)
         {
-
-
-
             var options = CommandLine.Parser.Default.ParseArguments<Options>(args);
             if (options.Value == null)
             {
                 return;
             }
+
             DHCPPacket packet = BuildPacketFromArguments(options);
             IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Parse(options.Value.Server), options.Value.Port);
 
             Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss")} Sending {options.Value.MessageType} request via dhcpd4Tool-> {serverEndPoint}");
             if (options.Value.Verbose)
-                Console.WriteLine(packet.ToString());
+            {
+                WriteColored(packet.ToString(), ConsoleColor.Blue);
+            }
 
+            long startTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            DhcpClient.DatagramRecivedEvent += (t, f, l) =>
+            {
+                Console.WriteLine($"Result from {f} length {l} via {t - startTime} ms");
+            };
+            DHCPPacket[] results = DhcpClient.SendDhcpRequest(serverEndPoint, packet, options.Value.Timeout);
 
+            if (options.Value.Verbose)
+            {
+                foreach (DHCPPacket result in results)
+                {
+                    WriteColored(result.ToString(), ConsoleColor.DarkRed);
+                }                
+            }
+        }
 
-
+        static void WriteColored(string text, ConsoleColor color)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ResetColor();
         }
 
         static DHCPPacket BuildPacketFromArguments(ParserResult<Options> options)
@@ -97,7 +115,6 @@ namespace dhcpd4Tool.cli
             }
             return packet;
         }
-
     }
 }
 

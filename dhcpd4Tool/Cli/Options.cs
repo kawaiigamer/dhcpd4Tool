@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using CommandLine;
 
+
 namespace dhcpd4Tool.cli
 {
     class Options
     {
         // server 
 
-        [Option('v', "verbose", HelpText = "Prints all debug messages", Default = false)]
+        [Option('v', "verbose", HelpText = "Prints all debug messages", Default = true)]
         public bool Verbose { get; set; }
 
         [Option('s', "server", HelpText = "Server to send request", Default = "192.168.1.255")]
@@ -15,6 +16,9 @@ namespace dhcpd4Tool.cli
 
         [Option('p', "port", HelpText = "Server port", Default = (ushort)67)]
         public ushort Port { get; set; }
+
+        [Option('t', "timeout", HelpText = "Timeout (ms)", Default = 1000 * 10)]
+        public int Timeout { get; set; }
 
         // Header values
 
@@ -70,7 +74,7 @@ namespace dhcpd4Tool.cli
         // Options
 
 
-        [Option('t', "мessage-type", HelpText = "DHCP Message type", Default = DHCPMessageType.DHCPDISCOVER)]
+        [Option('y', "мessage-type", HelpText = "DHCP Message type", Default = DHCPMessageType.DHCPDISCOVER)]
         public DHCPMessageType MessageType { get; set; }
 
         [Option('o', "options", HelpText = "List OF DHCP options", Separator = ' ')]

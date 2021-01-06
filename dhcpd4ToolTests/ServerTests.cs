@@ -20,7 +20,7 @@ namespace dhcpd4ToolTests
         public void AliveTest() 
         {
             DHCPPacket pack = new DHCPPacket();
-            DHCPPacket result = DhcpClient.SendDhcpRequest(server, pack);
+            DHCPPacket result = DhcpClient.SendDhcpRequest(server, pack)[0];
             Assert.AreEqual(result.OP, DHCPMessageOP.BOOTREPLY);
         }
 
@@ -29,17 +29,7 @@ namespace dhcpd4ToolTests
         public void OfferTest()
         {
             DHCPPacket pack = new DHCPPacket();
-            DHCPPacket result = DhcpClient.SendDhcpRequest(server, pack);
-            Assert.AreEqual(result.GetMessageType(), DHCPMessageType.DHCPOFFER);
-        }
-
-        [Test]
-        /// <summary> Отправляет сообщение бродкастом, ждет отключает broadcast флаг у пакета, ждет принемает адрессе в CIADDR</summary>
-        public void BroadcastTest()
-        {
-            DHCPPacket pack = new DHCPPacket();
-            pack.FLAGS = 0x00;
-            DHCPPacket result = DhcpClient.SendDhcpRequest(new IPEndPoint(IPAddress.Parse("192.168.1.255"), 67), pack);
+            DHCPPacket result = DhcpClient.SendDhcpRequest(server, pack)[0];
             Assert.AreEqual(result.GetMessageType(), DHCPMessageType.DHCPOFFER);
         }
 
@@ -50,10 +40,9 @@ namespace dhcpd4ToolTests
             byte[] expectedAdress = { 192, 168, 1, 29 };
             DHCPPacket pack = new DHCPPacket();
             pack.SetCHADDR("8A:F5:85:13:6A:DC");
-            DHCPPacket result = DhcpClient.SendDhcpRequest(server, pack);
+            DHCPPacket result = DhcpClient.SendDhcpRequest(server, pack)[0];
             Assert.AreEqual(expectedAdress, result.YIADDR); 
         }
-
 
         [Test]
         /// <summary> Проверяет предложит ли сервер адресс привязанный  к CircuitID и AgentRemoteID </summary>
@@ -62,10 +51,28 @@ namespace dhcpd4ToolTests
             byte[] expectedAdress = { 192, 168, 1, 50 };
             DHCPPacket pack = new DHCPPacket();
             pack.SetOption82("circuit_id_test", "remote_id_test");
-            DHCPPacket result = DhcpClient.SendDhcpRequest(server, pack);
+            DHCPPacket result = DhcpClient.SendDhcpRequest(server, pack)[0];
             Assert.AreEqual(expectedAdress, result.YIADDR);
         }
 
+        [Test]
+        /// <summary> Отправляет сообщение бродкастом, отключает broadcast флаг у пакета, ждет данные отправленные на адресс в CIADDR</summary>
+        public void BroadcastTest()
+        {
+            DHCPPacket pack = new DHCPPacket();
+            pack.FLAGS = 0x00;
+            pack.CIADDR = DhcpConvertor.IpToBytes("192.168.1.10");
+            DHCPPacket result = DhcpClient.SendDhcpRequest(new IPEndPoint(IPAddress.Parse("192.168.1.255"), 67), pack)[0];
+            Assert.AreEqual(result.GetMessageType(), DHCPMessageType.DHCPOFFER);
+        }
 
+        [Test]
+        /// <summary> Проверяет с того ли сервера пришел ответ</summary>
+        public void TargetTest()
+        {
+            DHCPPacket pack = new DHCPPacket();
+            DHCPPacket result = DhcpClient.SendDhcpRequest(server, pack)[0];
+            Assert.AreEqual(result.GetServerInformation(), server.Address.ToString());            
+        }
     }
 }
