@@ -65,10 +65,21 @@ Copyright (C) 2021 dhcpd4Tool
 
 ## Usage
 
+The options separator is `space`.
+
+If no type is specified at the beginning of the value, the value will be treated as an ASCII string.
+
+Valid value types:
+
+- **[byte]** - sequence of single bytes, using `,` as separator.
+- **[ip]** - sequence of IPv4 addresses, using `,` as separator.
+
+Example:
+
 ```bash
 dhcpd4Tool -s 192.168.1.100 -p 69 -f 0 -m 8A:F5:85:13:6A:DC \
 -o "12=my-workstation 7=[ip]10.245.67.1,225.71.66.12 20=[byte]0x01 26=[byte]0x64,0xC" \
---сircuit-id "245" --remote-id "relay#37"
+--сircuit-id "[byte]0x56" --remote-id "relay#37"
 ```
 
 ## TODO

@@ -12,7 +12,7 @@ namespace dhcpd4ToolTests
         [OneTimeSetUp]
         public void Setup()
         {
-            this.server = new IPEndPoint(IPAddress.Parse("192.168.1.101"), 67);
+            this.server = new IPEndPoint(IPAddress.Parse("192.168.1.103"), 67);
         }
 
         [Test]

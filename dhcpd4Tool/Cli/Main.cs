@@ -7,7 +7,7 @@ namespace dhcpd4Tool.cli
 {
     public static class DhcpTester
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var options = CommandLine.Parser.Default.ParseArguments<Options>(args);
             if (options.Value == null)
@@ -39,14 +39,14 @@ namespace dhcpd4Tool.cli
             Console.WriteLine($"{results.Length} packets recived");
         }
 
-        static void WriteColored(string text, ConsoleColor color)
+        private static void WriteColored(string text, ConsoleColor color)
         {
             Console.ForegroundColor = color;
             Console.WriteLine(text);
             Console.ResetColor();
         }
 
-        static DHCPPacket BuildPacketFromArguments(ParserResult<Options> options)
+        private static DHCPPacket BuildPacketFromArguments(ParserResult<Options> options)
         {
             DHCPPacket packet = new DHCPPacket();
 
@@ -73,44 +73,21 @@ namespace dhcpd4Tool.cli
 
             packet.SetMessageType(options.Value.MessageType);
 
-            const string IP_MARK = "[ip]";
-            const string BYTE_MARK = "[byte]";
-
             foreach (string element in options.Value.OptionsList)
             {
                 string[] option = element.Split('=');
                 byte optionNumber = byte.Parse(option[0]);
-                if (optionNumber == 255 | optionNumber == 53 | optionNumber == 82)
-                    continue;
-                if(option[1].StartsWith(IP_MARK))
+                if (optionNumber == 255 | optionNumber == 53 | optionNumber == 82 |
+                    optionNumber == 46 | optionNumber == 54)
                 {
-                    string[] ips = option[1].Remove(0, IP_MARK.Length).Split(',');
-                    byte[] data = new byte[ips.Length * 4];
-                    for (int i = 0; i < ips.Length; i++)
-                    {
-                        DhcpConvertor.IpToBytes(ips[i]).CopyTo(data, i * 4);
-                    }
-                    packet.Options[optionNumber] = new DhcpOptionData(data);
                     continue;
                 }
-                if (option[1].StartsWith(BYTE_MARK))
-                {
-                    string[] bytes = option[1].Remove(0, BYTE_MARK.Length).Split(',');
-                    byte[] data = new byte[bytes.Length];
-                    for (int i = 0; i < bytes.Length; i++)
-                    {
-                        data[i] = Convert.ToByte(bytes[i], 16);
-                    }
-                    packet.Options[optionNumber] = new DhcpOptionData(data);
-                    continue;
-                }
-                packet.Options[optionNumber] = new DhcpOptionData(DhcpConvertor.AsciiToBytes(option[1]));
+                packet.Options[optionNumber] = new DhcpOptionData(ResolveOptionContent(option[1]));
             }
 
             if (options.Value.CircuitID != null | options.Value.RemoteID != null)
             {
-                packet.SetOption82(options.Value.CircuitID == null ? String.Empty : options.Value.CircuitID,
-                                   options.Value.RemoteID == null ? String.Empty : options.Value.RemoteID);
+                packet.SetOption82(ResolveOptionContent(options.Value.CircuitID), ResolveOptionContent(options.Value.RemoteID));
             }
             if (options.Value.OptionOverload != 0)
                 packet.SetOptionOverload(options.Value.OptionOverload);
@@ -118,8 +95,36 @@ namespace dhcpd4Tool.cli
                 packet.SetNetBIOSNodeType(options.Value.NetBIOSNodeType);
             return packet;
         }
-    }
+
+        const string IP_MARK = "[ip]";
+        const string BYTE_MARK = "[byte]";
+
+        private static byte[] ResolveOptionContent(string optionValue) => optionValue switch
+        {
+            string v when v.StartsWith(IP_MARK) => ProcessOptionContent(IP_MARK, v, 4, (elements, data, i) =>
+            {
+                DhcpConvertor.IpToBytes(elements[i]).CopyTo(data, i * 4);
+            }),
+
+            string v when v.StartsWith(BYTE_MARK) => ProcessOptionContent(BYTE_MARK, v, 1, (elements, data, i) =>
+            {
+                data[i] = Convert.ToByte(elements[i], 16);
+            }),
+            
+            null => DhcpConvertor.AsciiToBytes(String.Empty),
+
+            _ => DhcpConvertor.AsciiToBytes(optionValue)
+            
+        };
+        private static byte[] ProcessOptionContent(string mark, string val, int size, Action<string[],byte[],int> action)
+        {
+            string[] elements = val.Remove(0, mark.Length).Split(',');
+            byte[] data = new byte[elements.Length * size];
+            for (int i = 0; i < elements.Length; i++)
+            {
+                action(elements,data,i);
+            }
+            return data;
+        }
+    }    
 }
-
-
-
