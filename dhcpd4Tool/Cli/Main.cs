@@ -2,7 +2,6 @@
 using System;
 using System.Net;
 
-
 namespace dhcpd4Tool.cli
 {
     public static class DhcpTester
@@ -34,9 +33,14 @@ namespace dhcpd4Tool.cli
                 }
 
             };
-            DHCPPacket[] results = DhcpClient.SendDhcpRequest(serverEndPoint, packet, options.Value.Timeout);
+            DhcpClient.DatagramReciveErrorEvent += (e) =>
+            {
+                WriteColored($"Exception while sending {e.Message}", ConsoleColor.Red);
+            };
 
-            Console.WriteLine($"{results.Length} packets recived");
+            DHCPPacket[]  results = DhcpClient.SendDhcpRequest(serverEndPoint, packet, options.Value.Timeout);
+
+            Console.WriteLine($"{results.Length} packets recived via {DateTimeOffset.Now.ToUnixTimeMilliseconds() - startTime} ms");
         }
 
         private static void WriteColored(string text, ConsoleColor color)

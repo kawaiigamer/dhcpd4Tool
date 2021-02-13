@@ -11,7 +11,9 @@ namespace dhcpd4Tool
     public static class DhcpClient
     {
         public delegate void DatagramRecivedNotification(long time, int len, DHCPPacket p);
+        public delegate void DatagramReciveError(SocketException e);
         public static event DatagramRecivedNotification DatagramRecivedEvent;
+        public static event DatagramReciveError DatagramReciveErrorEvent;
 
         public static DHCPPacket[] SendDhcpRequest(IPEndPoint endPoint, DHCPPacket packet, int timeoutMs = 1000 * 10)
         {
@@ -31,11 +33,18 @@ namespace dhcpd4Tool
             waitHandle.WaitOne(timeoutMs);
             
             void OnMessageRecieved(IAsyncResult ar)
-            { 
-                Byte[] receivedDatagram = udpClient.EndReceive(ar, ref bindPoint);
-                DHCPPacket receivedPacket = DHCPPacket.FromArray(receivedDatagram);
-                recivedPackets.Add(receivedPacket);
-                DatagramRecivedEvent?.Invoke(DateTimeOffset.Now.ToUnixTimeMilliseconds(), receivedDatagram.Length, receivedPacket);
+            {
+                try
+                {
+                    Byte[] receivedDatagram = udpClient.EndReceive(ar, ref bindPoint);
+                    DHCPPacket receivedPacket = DHCPPacket.FromArray(receivedDatagram);
+                    recivedPackets.Add(receivedPacket);
+                    DatagramRecivedEvent?.Invoke(DateTimeOffset.Now.ToUnixTimeMilliseconds(), receivedDatagram.Length, receivedPacket);
+                }
+                catch (SocketException e)
+                {
+                    DatagramReciveErrorEvent?.Invoke(e);
+                }
                 if (udpClient.Available == 0)
                 {
                     waitHandle.Set();
